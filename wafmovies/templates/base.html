@@ -1,0 +1,111 @@
+{% import "bootstrap/wtf.html" as wtf %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{ title }}  </title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/7877aa17a0.js" crossorigin="anonymous"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</head>
+
+<body>
+        
+
+    <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+        <a class="navbar-brand" href="/">[WafMovies]</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main_nav">
+        <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="main_nav">
+
+
+        
+        <!-- TOP MENU (Only on Homepage)-->
+        {% if request.url_rule.endpoint == 'home.homepage' %}
+
+        <ul class="navbar-nav">
+
+            <form class="form-inline" method="POST" action="">
+            {{ search_form.hidden_tag() }}
+
+            <li class="nav-item">
+
+                <div class="input-group">
+                    {{ wtf.form_field(search_form.title_input, placeholder="Search movie", class="form-control form-control-sm  ml-3 w-60", autocomplete="off") }}
+                    <div class="input-group-append">
+                        <input type="submit" class="btn btn-sm btn-secondary" type="button" value="Go"></input>
+                    </div>
+                </div>
+
+            </li>
+            <li class="nav-item">
+
+                <div class="input-group">
+                    {{ wtf.form_field(search_form.people_input, placeholder="Search people", class="form-control form-control-sm  ml-3 w-60", autocomplete="off") }}
+                    <div class="input-group-append">
+                        <input type="submit" class="btn btn-sm btn-secondary" type="button" value="Go"></input>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+
+                <div class="input-group">
+                    {{ wtf.form_field(search_form.genre_input, placeholder="Search genre", class="form-control form-control-sm  ml-3 w-60", autocomplete="off") }}
+                    <div class="input-group-append">
+                        <input type="submit" class="btn btn-sm btn-secondary" type="button" value="Go"></input>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+
+                <div class="input-group">
+                    <div class="autocomplete">
+                        {{ wtf.form_field(search_form.country_input, placeholder="Search country", class="form-control form-control-sm ml-3 w-60", autocomplete="off") }}
+                    </div>
+                    <div class="input-group-append">
+                        <input type="submit" class="btn btn-sm btn-secondary" type="button" value="Go"></input>
+                    </div>
+                </div>
+            </li>
+            </form>
+
+        </ul>
+
+        
+        <script src="{{ url_for('static', filename='js/autocomplete.js') }}"></script>
+
+        {% endif %}
+
+        <ul class="navbar-nav ml-auto">
+            {% if request.url_rule.endpoint == 'home.homepage' %}
+                {% if request.args.get('docu') == 'off' %}
+                <li class="nav-item"><a class="nav-link" href="{{ modify_query(docu='on') }}">Toggle Documentaries ON</a></li>
+                {% else %}
+                <li class="nav-item"><a class="nav-link" href="{{ modify_query(docu='off') }}">Toggle Documentaries OFF</a></li>
+                {% endif %}
+            {% endif %}
+            <li class="nav-item"><a class="nav-link" href="/statistics">Statistics</a></li>
+            {% if not current_user.is_authenticated  %}<li class="nav-item"><a class="nav-link" href="/login">Login</a></li>{% endif %}
+            {% if current_user.is_authenticated  %}<li class="nav-item"><a class="nav-link" href="/add">Add shows</a></li>{% endif %}
+            {% if current_user.is_authenticated  %}<li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>{% endif %}
+        </ul>
+
+        
+
+
+        </div> 
+
+    </nav>
+
+    <div class="container-fluid" style="margin-top:80px">
+        {% block content %}{% endblock %}
+    </div>
+
+
+</body>
+</html>

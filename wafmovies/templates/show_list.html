@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+
+
+{% if result %}
+
+
+<!-- ---------------- -->
+<!-- PAGINATION TOP   -->
+<!-- ---------------- -->
+
+    <!-- Pagination Links-->
+    <div class="text-center">
+        <a href="{{ modify_query(page=result.prev_num) }}"
+        class="btn btn-outline-primary 
+        {% if result.page == 1 %}disabled{% endif %}">
+            &laquo;
+        </a>
+    <!-- Loop through the number of pages to display a link for each-->
+        {% for page_num in result.iter_pages() %}
+            {% if page_num %}
+            <!-- Check for the active page and set the link to "Active"-->
+                {% if result.page == page_num %}
+                <a href="{{ modify_query(page=page_num) }}"
+                class="btn btn-primary">
+                    {{ page_num }}
+                </a>
+                {% else %}
+                <a href="{{ modify_query(page=page_num) }}"
+                class="btn btn-outline-primary">
+                    {{ page_num }}
+                </a>
+                {% endif %}
+            {% else %}
+                ...
+            {% endif %}
+        {% endfor %}
+
+        <a href="{{ modify_query(page=result.next_num) }}"
+        class="btn btn-outline-primary 
+        {% if result.page == result.pages %}disabled{% endif %}">
+            &raquo;
+        </a>
+
+        <br /><br />
+
+
+    </div>
+
+<!-- ------------------------------------ -->
+<!-- EXTRA DATA (person, country, genre)) -->
+<!-- ------------------------------------ -->
+
+    {% if request.args.get('people') %} 
+        <center><h2>{{ get_data(request.args.get('people'))|safe }}</h2><br /></center>
+    {% elif request.args.get('country') %} 
+        <center><h2>Country: {{ get_data(request.args.get('country'))|safe }}</h2><br /></center>
+    {% elif request.args.get('genre') %} 
+        <center><h2>Genre: {{ get_data(request.args.get('genre'))|safe }}</h2><br /></center>
+    {% endif %}
+    
+<!-- ---------- -->
+<!-- SHOWS LOOP -->
+<!-- ---------- -->
+
+<div class="row justify-content-md-center">
+    <div class="col-md-8">
+
+        <table class="table table-sm table-hover">
+            <thead>
+                <tr>
+                    {% if current_user.is_authenticated  %}
+                        <th style="width: 3%">
+                            {% if request.args.get('order') == 'id_asc' %}
+                                <a href="{{ modify_query(order='id_desc') }}">#</a>
+                            {% else %} 
+                                <a href="{{ modify_query(order='id_asc') }}">#</a>
+                            {% endif %}
+                        </th>
+                    {% endif %}
+                    <th style="width: 50%">
+                        {% if request.args.get('order') == 'title_desc' %}
+                            <a href="{{ modify_query(order='title_asc') }}">Title</a>
+                        {% else %} 
+                            <a href="{{ modify_query(order='title_desc') }}">Title</a>
+                        {% endif %}
+                    </th>
+                    <th style="width: 3%">
+                        {% if request.args.get('order') == 'year_asc' %}
+                            <a href="{{ modify_query(order='year_desc') }}">Year</a>
+                        {% else %} 
+                            <a href="{{ modify_query(order='year_asc') }}">Year</a>
+                        {% endif %}
+                    </th>
+                    <th style="width: 35%">Director</th>
+                    <th style="width: 5%" class="text-center">
+                        {% if request.args.get('order') == 'user_rating_desc' %}
+                            <a href="{{ modify_query(order='user_rating_asc') }}">Rating</a>
+                        {% else %} 
+                            <a href="{{ modify_query(order='user_rating_desc') }}">Rating</a>
+                        {% endif %}
+                    </th>
+                    <th style="width: 5%" class="text-center">
+                        {% if request.args.get('order') == 'imdb_rating_desc' %}
+                            <a href="{{ modify_query(order='imdb_rating_asc') }}">IMDb</a>
+                        {% else %} 
+                            <a href="{{ modify_query(order='imdb_rating_desc') }}">IMDb</a>
+                        {% endif %}
+                    </th>
+                    <th style="width: 7%" class="text-center">Stor.</th>
+                    <th style="width: 4%" class="text-center">Flag</th>
+                    {% if current_user.is_authenticated  %}
+                    <th colspan=3 style="border-left: solid 3px #000;">ADMIN</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for m in result.items %}
+                <tr>
+                    {% if current_user.is_authenticated  %}
+                        <td>{{ m.id }}</td>
+                    {% endif %}
+
+                    <td>
+                        <a href="{{ url_for('home.show_page', id=m.id) }}">{{ m.title }}</a>
+                    </td>
+                    <td>{{ m.year }}</td>
+                    <td>                
+                        {% for dir in m.directors[:2] %}
+                            <a href="{{ url_for('home.homepage', people=dir.id) }}">{{ dir.name }}</a>
+                            {{- "," if not loop.last }}
+                        {% endfor %}
+                        {% if m.directors|length > 2 %}...{% endif %}
+                    </td>
+                    
+                    <td class="text-center">
+                        
+                        {% if m.user_rating %} 
+                            {{ m.user_rating }}
+                        {% elif m.user_viewed %}
+                            <span class="fas fa-check" style="font-size: 0.8em; color: limegreen;"></span> 
+                        {% endif %}
+                    </td>
+
+                    <td class="text-center">
+                        {% if m.no_imdb %}<span class="fas fa-times" style="font-size: 1em; color: red;"></span>  
+                        {% elif m.imdb_id %}
+                            {% if m.imdb_rating %}<a href="https://www.imdb.com/title/tt{{ '%07d'%m.imdb_id }}">{{ m.imdb_rating }}</a>
+                            {% else %}<a href="https://www.imdb.com/title/tt{{ '%07d'%m.imdb_id }}">-</a>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+
+                    <td class="text-center">         
+                        {% if m.releases|length > 1 %} 
+                            <span class="badge badge-pill badge-light">x{{ m.releases|length }}</span>
+                        {% elif m.releases %}
+                            <!-- SET COLORS FOR STORAGE BUTTONS -->
+                            {% if m.releases[0].storage.name == '1' %}{% set color="badge badge-pill badge-primary" %}
+                            {% elif m.releases[0].storage.name == '2' %}{% set color="badge badge-pill badge-secondary" %}
+                            {% elif m.releases[0].storage.name == '3' %}{% set color="badge badge-pill badge-success" %}
+                            {% elif m.releases[0].storage.name == '4' %}{% set color="badge badge-pill badge-danger" %}
+                            {% elif m.releases[0].storage.name == 'd1' %}{% set color="badge badge-pill badge-info" %}
+                            {% else %}{% set color="btn btn-dark btn-sm" %}
+                            {% endif %}
+                            <a class="{{ color }}" href="{{ url_for('home.homepage', storage=m.releases[0].storage_id) }}" title="{{ m.releases[0].filename }}">{{ m.releases[0].storage.name }}</a>
+                        {% endif %}
+                    </td>
+
+                    <td class="text-center">
+                        {% if m.validated %}<span class="fas fa-check" style="font-size: 1em; color: limegreen;"></span>  
+                        {% endif %}
+                    </td>
+
+                    <!-- -------------  -->
+                    <!-- ADMIN COLUMNS  -->
+                    <!-- -------------- -->
+                    {% if current_user.is_authenticated  %}
+                        <td style="border-left: solid 3px #000;">
+                            {% if m.imdb_id %}
+                                <a href="https://passthepopcorn.me/torrents.php?action=advanced&searchstr=https://www.imdb.com/title/tt{{ '%07d'%m.imdb_id }}">
+                                    <img src="{{ url_for('static', filename='ptp.ico') }}" width="20" height="20" style="vertical-align: sub;">
+                                </a>
+                            {% elif m.no_imdb %} 
+                                <a href="https://passthepopcorn.me/torrents.php?action=advanced&searchstr={{ m.title }}">
+                                    <img src="{{ url_for('static', filename='ptp.ico') }}" width="20" height="20" style="vertical-align: sub;">
+                                </a>
+                            {% else %}
+                                <a href="" onclick="return false;" data-toggle="modal" data-target="#quickimdbModal{{m.id}}" style="text-decoration: none;">
+                                    <span class="fas fa-pencil-alt" style="font-size: 0.9em; color: Dodgerblue;"></span> 
+                                </a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if m.validated is not true %}
+                                <a href="{{ url_for('admin.quick_flag_validated', id=m.id, prev_url=request.full_path) }}">
+                                    <span class="fas fa-check" style="font-size: 1em; color: limegreen;"></span>  
+                                </a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if m.user_viewed is not true %}
+                                <a href="{{ url_for('admin.quick_flag_viewed', id=m.id, prev_url=request.full_path) }}">
+                                    <span class="fas fa-eye" style="font-size: 0.9em; color: blueviolet;"></span> 
+                                </a>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+
+
+                </tr>
+
+                                    <!-- IMDB Modal (temp)-->
+                                    <div class="modal" id="quickimdbModal{{m.id}}" tabindex="-1" role="dialog" aria-labelledby="quickimdbModal{{m.id}}" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Add IMDb</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                            </div>
+                                            <div class="modal-body">
+                
+                                                <form action="{{ url_for('admin.show_edit', id=m.id) }}" method="post">
+
+                                                    <div class="row mb-2">
+                                                        <div class="col-4"><span class="pull-right font-weight-bold">Status:</span></div>
+                                                        <div>
+                                                            {% if m.imdb_id %} 
+                                                                <a href="https://www.imdb.com/title/tt{{ '%07d'%m.imdb_id }}">https://www.imdb.com/title/tt{{ '%07d'%m.imdb_id }}</a>
+                                                                <a href="https://passthepopcorn.me/torrents.php?action=advanced&searchstr=https://www.imdb.com/title/tt{{ '%07d'%m.imdb_id }}">
+                                                                    <img src="{{ url_for('static', filename='ptp.ico') }}" width="20" height="20" style="vertical-align: sub;">
+                                                                </a>
+                                                                <br />
+                                                            {% elif m.no_imdb %} 
+                                                                <span class="fas fa-times" style="font-size: 1em; color: red;"></span> Flag: No IMDB
+                                                            {% endif %}
+                                                        </div>
+                                                    </div> 
+                                                    <hr />
+                                                
+                                                    <div class="row mb-2">    
+                                                        <div class="col-4"><span class="pull-right font-weight-bold">New IMDb:</span></div>
+                                                        <div>
+                                                            <div class="input-group input-group-sm">
+                                                                <input type="text" name="imdb_id" class="form-control input-sm" placeholder="IMDb id or link">
+                                                                <div class="input-group-append">
+                                                                  <button type="submit" class="btn btn-sm btn-primary" type="button">Submit</button>
+                                                                </div>
+                                                            </div>
+                                                            {% if m.releases %} 
+                                                              <a role="button" href="https://passthepopcorn.me/torrents.php?action=advanced&searchstr={{ m.releases[0].dirname }}" class="btn btn-sm btn-sucess">PTP</a> / 
+                                                              <a role="button" href="https://passthepopcorn.me/torrents.php?action=advanced&filelist=={{ m.releases[0].filename }}" class="btn btn-sm btn-sucess">PTP File</a>
+                                                            {% endif %}
+                                                          
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="row mb-2">
+                                                        <div class="col-4"><span class="pull-right font-weight-bold">Change status:</span></div>
+                                                        <div>  
+                                                            <a href="{{ url_for('admin.quick_flag_no_imdb', id=m.id, prev_url=request.full_path) }}" style="text-decoration: none;">
+                                                                <span class="btn btn-primary btn-sm mb-2">
+                                                                    {% if m.no_imdb %}Remove NO_IMDB Flag{% else %}Add NO_IMDB Flag{% endif %}
+                                                                </span>  
+                                                            </a>
+                                                        </div>
+                                                    </div> 
+                                    
+                                                </form>
+
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                {% endfor %}
+
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+<!-- ---------------- -->
+<!-- PAGINATION BOTTOM-->
+<!-- ---------------- -->
+
+    <hr>
+
+    <!-- Pagination Links-->
+    <div class="text-center">
+        <a href="{{ modify_query(page=result.prev_num) }}"
+        class="btn btn-outline-primary 
+        {% if result.page == 1 %}disabled{% endif %}">
+            &laquo;
+        </a>
+    <!-- Loop through the number of pages to display a link for each-->
+        {% for page_num in result.iter_pages() %}
+            {% if page_num %}
+            <!-- Check for the active page and set the link to "Active"-->
+                {% if result.page == page_num %}
+                <a href="{{ modify_query(page=page_num) }}"
+                class="btn btn-primary">
+                    {{ page_num }}
+                </a>
+                {% else %}
+                <a href="{{ modify_query(page=page_num) }}"
+                class="btn btn-outline-primary">
+                    {{ page_num }}
+                </a>
+                {% endif %}
+            {% else %}
+                ...
+            {% endif %}
+        {% endfor %}
+
+        <a href="{{ modify_query(page=result.next_num) }}"
+        class="btn btn-outline-primary 
+        {% if result.page == result.pages %}disabled{% endif %}">
+            &raquo;
+        </a>
+
+        <br /><br />
+
+
+    </div>
+
+<!-- ------------------------- -->
+<!-- QUERY INFOS               -->
+<!-- ------------------------- -->
+
+<!-- <center><small>{{ current_query_count() }} results.</small></center> -->
+<center><small>{{ result.total }} results.</small></center>
+
+
+
+<br /><br />
+        
+{% endif %}
+    
+
+{% endblock %}

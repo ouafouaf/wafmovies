@@ -1,0 +1,400 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+{% if result %}
+
+
+<!-- Import Modals templates -->
+{% if current_user.is_authenticated  %}
+    {% include 'modals_show.html' %}
+{% endif %}
+
+
+
+<div class="container-fluid">
+        <div class="row">
+
+            <!-- ------ -->
+            <!-- POSTER -->
+            <!-- ------ -->
+            <div class="col-lg-5 text-center">
+                <div>
+                    {% if result.imdb_poster_uri %}<img src="{{ result.imdb_poster_uri }}" class="img-fluid mb-2">{% endif %}
+                </div>
+                <div>
+                    {% if current_user.is_authenticated  %}
+                        <a href="" onclick="return false;" data-toggle="modal" data-target="#posterModal" style="text-decoration: none;">
+                            <span class="fas fa-pencil-alt" style="font-size: 0.8em; color: Dodgerblue;"></span> 
+                        </a>
+                    {% endif %}
+                </div>
+
+               
+            </div>
+            
+
+            <!-- ------------ -->
+            <!-- SHOW DETAILS -->
+            <!-- ------------ -->
+            <div class="col-lg-7 pl-3 pr-3">
+        
+                <!-- Title Group -->
+                <h5>
+                    <!-- Validated Checker  -->
+                    {% if current_user.is_authenticated  %}
+                        {% if result.validated is true %}
+                            <a href="{{ url_for('admin.quick_flag_validated', id=result.id) }}" style="text-decoration: none;">
+                                <span title="Click to unmark as validated" class="fas fa-check" style="font-size: 1em; color: limegreen;"></span>  
+                            </a>
+                        {% else %} 
+                            <a href="{{ url_for('admin.quick_flag_validated', id=result.id) }}" style="text-decoration: none;">
+                                <span title="Click to mark as validated" class="fas fa-check" style="font-size: 1em; color: lightgray;"></span>  
+                            </a>
+                        {% endif %} 
+                    </a>
+                    {% endif %}
+                    
+                    <!-- Viewed Checker  -->
+                    {% if current_user.is_authenticated  %}
+                        {% if result.user_viewed is true %}
+                            <a href="{{ url_for('admin.quick_flag_viewed', id=result.id) }}" style="text-decoration: none;">
+                                <span title="Click to unmark as viewed" class="fas fa-eye" style="font-size: 1em; color: purple;"></span>  
+                            </a>
+                        {% else %} 
+                            <a href="{{ url_for('admin.quick_flag_viewed', id=result.id) }}" style="text-decoration: none;">
+                                <span title="Click to mark as viewed" class="fas fa-eye-slash" style="font-size: 1em; color: lightgray;"></span>  
+                            </a>
+                        {% endif %} 
+                    </a>
+                    {% endif %}
+
+                    <!-- Title  -->
+                    {{ result.title }} ({{ result.year }}) 
+
+                    <!-- Button update data -->
+                    {% if result.no_imdb %} 
+                        <span class="fas fa-times" style="font-size: 0.9em; color: red;"></span>  
+                    {% else %}
+                        <a href="{{ url_for('admin.show_update_data', id=result.id) }}" style="text-decoration: none;">
+                            <span class="fas fa-sync-alt" style="font-size: 0.9em; color: limegreen;"></span>  
+                        </a>
+                    {% endif %}
+
+                    <!-- Button Edit  -->
+                    {% if current_user.is_authenticated  %}
+                    <a href="" onclick="return false;" data-toggle="modal" data-target="#titleModal" style="text-decoration: none;">
+                        <span class="fas fa-pencil-alt" style="font-size: 0.9em; color: Dodgerblue;"></span> 
+                    </a>
+                    {% endif %}
+
+                    <!-- Button Delete  -->
+                    {% if current_user.is_authenticated  %}
+                    <a href="{{ url_for('admin.show_delete', id=result.id) }}"  onclick="return confirm('Are you sure?')" style="text-decoration: none;">
+                        <span class="fas fa-trash-alt" style="font-size: 0.9em; color: red;"></span> 
+                    </a>
+                    {% endif %}
+
+                </h5>
+
+                <hr />
+
+
+                <!-- AKAS -->
+                <div class="row">
+                    <div class="col-2">
+                        {% if current_user.is_authenticated  %}
+                            <a href="" onclick="return false;" data-toggle="modal" data-target="#akasModal" style="text-decoration: none;">
+                                <span class="fas fa-pencil-alt" style="font-size: 0.8em; color: Dodgerblue;"></span> 
+                            </a>
+                        {% endif %}
+                        <span class="pull-right font-weight-bold">AKAs:</span>
+                    </div>
+                    <div class="col-10">
+                        {% if result.original_title %}
+                            {{ result.original_title }} / Original Title <br />
+                        {% endif %}
+                        {% if result.akas %} 
+                            {% for e in result.akas %} {{ e.title }} / {{ e.lang }} <br /> {% endfor %}
+                        {% endif %}
+                    </div>
+                </div> 
+                <br />
+
+
+                <!-- Plot outline -->
+                <div class="row">
+                    <div class="col-2">
+                        {% if current_user.is_authenticated  %}
+                            <span class="fas fa-angle-double-right" style="font-size: 0.8em; color: lightgrey;"></span> 
+                        {% endif %}
+                        <span class="pull-right font-weight-bold">Plot outline:</span>
+                    </div>
+                    <div class="col-10">
+                        {% if result.plot_outline %}
+                            {{ result.plot_outline }}
+                            <br />
+                            <br />
+                        {% endif %}
+                    </div>
+                </div> 
+
+                <!-- IMDB Link  -->
+                <div class="row">
+                    <div class="col-2">
+                        {% if current_user.is_authenticated  %}
+                            <a href="" onclick="return false;" data-toggle="modal" data-target="#imdbModal" style="text-decoration: none;">
+                                <span class="fas fa-pencil-alt" style="font-size: 0.8em; color: Dodgerblue;"></span> 
+                            </a>
+                        {% endif %}
+                        <span class="pull-right font-weight-bold">IMDb Link:</span> 
+                    </div>
+                    <div class="col-10">
+                        {% if result.no_imdb %} 
+                        <span class="fas fa-times" style="font-size: 0.9em; color: red;"></span> 
+                        {% endif %}
+                        {% if result.imdb_id %} 
+                            <a href="https://www.imdb.com/title/tt{{ '%07d'%result.imdb_id }}">https://www.imdb.com/title/tt{{ '%07d'%result.imdb_id }}</a>
+                            {% if current_user.is_authenticated  %}
+                            <a href="https://passthepopcorn.me/torrents.php?action=advanced&searchstr=https://www.imdb.com/title/tt{{ '%07d'%result.imdb_id }}">
+                                <img src="{{ url_for('static', filename='ptp.ico') }}" width="20" height="20" style="vertical-align: sub;">
+                            </a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div> 
+                
+
+                <!-- IMDB Rating  -->
+                <div class="row">
+                    <div class="col-2">
+                        {% if current_user.is_authenticated  %}
+                            <span class="fas fa-angle-double-right" style="font-size: 0.8em; color: lightgrey;"></span> 
+                        {% endif %}
+                        <span class="pull-right font-weight-bold">IMDb rating:</span>
+                    </div>
+                    <div class="col-10">
+                        {% if result.imdb_rating %} 
+                            <div class="rating-box">
+                                <div class="rating" style="width:{{ result.imdb_rating * 10 }}%;"></div>
+                            </div>
+                            ({{result.imdb_rating}})
+                        {% endif %}
+                    </div>
+                </div> 
+                
+
+                <!-- User Rating  -->
+                <div class="row">
+                    <div class="col-2">
+                        {% if current_user.is_authenticated  %}
+                            <a href="" onclick="return false;" data-toggle="modal" data-target="#ratingModal" style="text-decoration: none;">
+                                <span class="fas fa-pencil-alt" style="font-size: 0.8em; color: Dodgerblue;"></span> 
+                            </a>
+                        {% endif %}
+                        <span class="pull-right font-weight-bold">User rating:</span>
+                    </div>
+                    <div class="col-10">
+                        {% if result.user_rating %} 
+                            <div class="rating-box">
+                                <div class="rating" style="width:{{ result.user_rating * 10 }}%;"></div>
+                            </div>
+                            ({{result.user_rating}})
+                        {% elif result.user_viewed %} 
+                            <span class="fas fa-check" style="font-size: 0.8em; color: limegreen;"></span>  
+                        {% endif %}
+                    </div>
+                </div> 
+                
+                
+                <!-- Countries  -->
+                <div class="row">
+                    <div class="col-2">
+                        {% if current_user.is_authenticated  %}
+                            <a href="" onclick="return false;" data-toggle="modal" data-target="#countryModal" style="text-decoration: none;">
+                                <span class="fas fa-pencil-alt" style="font-size: 0.8em; color: Dodgerblue;"></span> 
+                            </a>
+                        {% endif %}
+                        <span class="pull-right font-weight-bold">Country:</span>
+                    </div>
+                    <div class="col-10">
+                        {% if result.countries %} 
+                        {% for e in result.countries %} 
+                        <a href="{{ url_for('home.homepage', country=e.id) }}">{{ e.name }}</a>{{ ", " if not loop.last else "" }}
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                </div> 
+                
+                <!-- Genres  -->
+                <div class="row">
+                    <div class="col-2">
+                        {% if current_user.is_authenticated  %}
+                            <a href="" onclick="return false;" data-toggle="modal" data-target="#genreModal" style="text-decoration: none;">
+                                <span class="fas fa-pencil-alt" style="font-size: 0.8em; color: Dodgerblue;"></span> 
+                            </a>
+                        {% endif %}
+                        <span class="pull-right font-weight-bold">Genre:</span>
+                    </div>
+                    <div class="col-10">
+                        {% if result.genres %}
+                            {% for e in result.genres %} 
+                            <a href="{{ url_for('home.homepage', genre=e.id) }}">{{ e.name }}</a>{{ ", " if not loop.last else "" }}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div> 
+                
+                <!-- Collections  -->
+                <div class="row">
+                    <div class="col-2">
+                        {% if current_user.is_authenticated  %}
+                            <a href="" onclick="return false;" data-toggle="modal" data-target="#collectionModal" style="text-decoration: none;">
+                                <span class="fas fa-pencil-alt" style="font-size: 0.8em; color: Dodgerblue;"></span> 
+                            </a>
+                        {% endif %}
+                        <span class="pull-right font-weight-bold">Collections:</span>
+                    </div>
+                    <div class="col-10">
+                        {% if result.collections %}
+                            {% for e in result.collections %} 
+                            <a href="{{ url_for('home.homepage', collection=e.id) }}">{{ e.name }}</a>{{ ", " if not loop.last else "" }}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div> 
+                <br />
+                
+                <!-- Directors  -->
+                <div class="row">
+                    <div class="col-2">
+                        {% if current_user.is_authenticated  %}
+                            <a href="" onclick="return false;" data-toggle="modal" data-target="#directorsModal" style="text-decoration: none;">
+                                <span class="fas fa-pencil-alt" style="font-size: 0.8em; color: Dodgerblue;"></span> 
+                            </a>
+                        {% endif %}
+                        <span class="pull-right font-weight-bold">Director:</span>
+                    </div>
+                    <div class="col-10">
+                        {% if result.directors %}
+                        {% for e in result.directors %} 
+                        <a href="{{ url_for('home.homepage', people=e.id) }}">{{ e.name }}</a>{{ ", " if not loop.last else "" }}
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                </div> 
+                
+                <!-- Cast  -->
+                <div class="w-100"></div>
+                <div class="row">
+                    <div class="col-2">
+                        {% if current_user.is_authenticated  %}
+                            <a href="" onclick="return false;" data-toggle="modal" data-target="#castModal" style="text-decoration: none;">
+                                <span class="fas fa-pencil-alt" style="font-size: 0.8em; color: Dodgerblue;"></span> 
+                            </a>
+                        {% endif %}
+                        <span class="pull-right font-weight-bold">Cast:</span>
+                    </div>
+                    <div class="col-10">
+                        {% if result.cast %}
+                            {% for e in result.cast[:5] %} 
+                                <a href="{{ url_for('home.homepage', people=e.id) }}">{{ e.name }}</a>{{ ", " if not loop.last else "" }}
+                            {% endfor %}
+
+                            {% if result.cast|length > 5 %}
+                                <span id="dots">...</span>
+                                <span id="showmore">
+                                    {% for e in result.cast[5:] %} 
+                                        <a href="{{ url_for('home.homepage', people=e.id) }}">{{ e.name }}</a>{{ ", " if not loop.last else "" }}
+                                    {% endfor %}
+                                </span>
+                                <a href="" onclick="ShowMore();return false;" id="ShowMoreBtn">(Show more)</a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div> 
+                
+
+                <hr />
+
+                <!-- -----------------  -->
+                <!-- Releases Accordion -->
+                <!-- -----------------  -->
+
+                {% if result.releases %}
+                {% for r in result.releases[:25] %}
+
+                    <button class="accordion">
+                        {% if current_user.is_authenticated  %}
+                            <a href="" onclick="return false;" data-toggle="modal" data-target="#releaseModal{{r.id}}" style="text-decoration: none;">
+                                <span class="fas fa-pencil-alt" style="font-size: 0.8em; color: Dodgerblue;"></span> 
+                            </a>
+                        {% endif %}
+                        {% if r.delete %}<span style="color:red"><strong>DELETED</strong></span>{% endif %}
+                        {{ r.filename }}
+                        <span class="ml-2">{%- if r.storage -%}<a href="{{ url_for('home.homepage', storage=r.storage_id) }}" class="badge badge-primary">{{ r.storage.name }}</a>{% endif %}</span>
+                    </button>
+                    
+
+                    <div class="accordion-content mb-3"> 
+                        
+                        <div class="row">
+                            <div class="col-2"><span class="pull-right font-weight-bold">Filename:</span></div>
+                            <div>{{ r.filename }}</div>
+                        </div> 
+
+                        <div class="row">
+                                <div class="col-2"><span class="pull-right font-weight-bold">Directory:</span></div>
+                                <div>{{ r.dirname }}</div>
+                        </div> 
+
+                        <div class="row">
+                                <div class="col-2"><span class="pull-right font-weight-bold">Storage:</span></div>
+                                <div>{%- if r.storage -%}<a href="{{ url_for('home.homepage', storage=r.storage_id) }}" class="badge badge-primary">Disk #{{ r.storage.name }}</a>{% endif %}</div>
+                        </div> 
+
+                        <div class="row">
+                                <div class="col-2"><span class="pull-right font-weight-bold">File size:</span></div>
+                                <div>{{ humanbytes(r.size) }}</div>
+                        </div> 
+
+                        <div class="row">
+                                <div class="col-2"><span class="pull-right font-weight-bold">Duration:</span></div>
+                                <div>{{ duration(r.duration) }}</div>
+                        </div> 
+
+                        <div class="row">
+                                <div class="col-2"><span class="pull-right font-weight-bold">Resolution:</span></div>
+                                <div>{{ r.width|int }}x{{ r.height|int }}</div>
+                        </div> 
+
+                        <div class="pb-2">
+                        </div>
+
+                    </div>
+
+                    <!-- Import Release Modal -->
+                    {% if current_user.is_authenticated  %}
+                        {% include 'modals_release.html' %}
+                    {% endif %}
+
+
+                {% endfor %}
+                {% endif %}
+                
+        </div>
+    </div>
+</div>
+
+
+
+<script src="{{ url_for('static', filename='js/toggle_text.js') }}"></script>
+<script src="{{ url_for('static', filename='js/accordion.js') }}"></script>
+
+{% endif %}
+
+{% endblock %}
+
+

@@ -1,0 +1,431 @@
+<!-- Title Modal -->
+<div class="modal" id="titleModal" tabindex="-1" role="dialog" aria-labelledby="titleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Edit Title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+
+            <form action="{{ url_for('admin.show_edit', id=result.id) }}" method="post">
+                <div class="row mb-2">
+                    <div class="col-4"><span class="pull-right font-weight-bold">Status:</span></div>
+                    <div>
+                        {{ result.title }}
+                    </div>
+                </div> 
+                <hr />
+                <div class="row mb-2">    
+                    <div class="col-4"><span class="pull-right font-weight-bold">Edit title:</span></div>
+                    
+                    <div>
+                      <div class="mb-1"><input type="text" name="title_edit" class="form-control input-sm" placeholder="Type in title..."></div>
+                      <div class="mb-1"><input type="text" name="year_edit" class="form-control input-sm" pattern="[0-9]+" placeholder="Type in year..."></div>
+                      <div><button type="submit" class="btn btn-sm btn-primary" type="button">Submit</button></div>
+                  
+                    </div>
+                </div>
+            </form>
+
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- AKAS Modal -->
+<div class="modal" id="akasModal" tabindex="-1" role="dialog" aria-labelledby="akasModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Edit AKAs</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+          <form action="{{ url_for('admin.show_edit', id=result.id) }}" method="post">
+
+              <div class="row mb-2">
+                  <div class="col-3"><span class="pull-right font-weight-bold">Status:</span></div>
+                  <div>
+                    {% if result.original_title %}
+                        <div>
+                          {{ result.original_title }} / Original Title
+                          <a href="{{ url_for('admin.quick_remove_original_title', id=result.id) }}" onclick="return confirm('Are you sure?')" style="text-decoration: none;">
+                              <span class="fas fa-times m-1" style="font-size: 1em; color: red;"></span>
+                          </a>
+                        </div>
+                    {% endif %}
+
+                    {% for e in result.akas %}
+                      <div>
+                        {{ e.title }} / {{ e.lang }}
+                        <a href="{{ url_for('admin.quick_remove_aka', id=result.id, akaid=e.id) }}" onclick="return confirm('Are you sure?')" style="text-decoration: none;">
+                            <span class="fas fa-times m-1" style="font-size: 1em; color: red;"></span>
+                        </a>
+                      </div>
+                    {% endfor %}
+                  </div>
+              </div> 
+              <hr />
+          
+              <div class="row mb-2">    
+                  <div class="col-3"><span class="pull-right font-weight-bold">Add AKA:</span></div>
+                  <div>
+                    <div class="input-group">
+                      <input type="text" name="add_aka_title" class="form-control input-sm" placeholder="AKA">
+                      <input type="text" name="add_aka_lang" class="form-control input-sm" placeholder="Lang">
+                      <div class="input-group-append">
+                        <button type="submit" class="btn btn-sm btn-primary" type="button">Submit</button>
+                      </div>
+                    </div>
+                      
+                  </div>
+              </div>
+          
+              <div class="row mb-2">    
+                  <div class="col-3"><span class="pull-right font-weight-bold">Add Original Title:</span></div>
+                  <div>
+                    <div class="input-group">
+                      <input type="text" name="add_original_title" class="form-control input-sm" placeholder="Original Title">
+                      <div class="input-group-append">
+                        <button type="submit" class="btn btn-sm btn-primary" type="button">Submit</button>
+                      </div>
+                    </div>
+                      
+                  </div>
+              </div>
+              
+
+          </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- IMDb Modal -->
+<div class="modal" id="imdbModal" tabindex="-1" role="dialog" aria-labelledby="imdbModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Edit IMDb</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            
+            <form action="{{ url_for('admin.show_edit', id=result.id) }}" method="post">
+
+                <div class="row mb-2">
+                    <div class="col-4"><span class="pull-right font-weight-bold">Status:</span></div>
+                    <div>
+                        {% if result.imdb_id %} 
+                        <a href="https://www.imdb.com/title/tt{{ '%07d'%result.imdb_id }}">https://www.imdb.com/title/tt{{ '%07d'%result.imdb_id }}</a>
+                            <a href="https://passthepopcorn.me/torrents.php?action=advanced&searchstr=https://www.imdb.com/title/tt{{ '%07d'%result.imdb_id }}">
+                                <img src="{{ url_for('static', filename='ptp.ico') }}" width="20" height="20" style="vertical-align: sub;">
+                            </a>
+                            <br />
+                        {% elif result.no_imdb %} 
+                            <span class="fas fa-times" style="font-size: 1em; color: red;"></span> Flag: No IMDB
+                        {% endif %}
+                    </div>
+                </div> 
+                <hr />
+            
+                <div class="row mb-2">    
+                    <div class="col-4"><span class="pull-right font-weight-bold">New IMDb:</span></div>
+                    <div>
+                        <div class="input-group input-group-sm">
+                            <input type="text" name="imdb_id" class="form-control input-sm" placeholder="IMDb id or link">
+                            <div class="input-group-append">
+                              <button type="submit" class="btn btn-sm btn-primary" type="button">Submit</button>
+                            </div>
+                        </div>
+                        {% if result.releases %} 
+                          <a role="button" href="https://passthepopcorn.me/torrents.php?action=advanced&searchstr={{ result.releases[0].dirname }}" class="btn btn-sm btn-sucess">PTP</a> / 
+                          <a role="button" href="https://passthepopcorn.me/torrents.php?action=advanced&filelist=={{ result.releases[0].filename }}" class="btn btn-sm btn-sucess">PTP File</a>
+                        {% endif %}
+                      
+                    </div>
+                </div>
+                
+                <div class="row mb-2">
+                    <div class="col-4"><span class="pull-right font-weight-bold">Change status:</span></div>
+                    <div>  
+                        <a href="{{ url_for('admin.quick_flag_no_imdb', id=result.id) }}" style="text-decoration: none;">
+                            <span class="btn btn-primary btn-sm mb-2">
+                                {% if result.no_imdb %}Remove NO_IMDB Flag{% else %}Add NO_IMDB Flag{% endif %}
+                            </span>  
+                        </a>
+                    </div>
+                </div> 
+
+            </form>
+
+        </div>
+      </div>
+    </div>
+</div>
+
+
+<!-- Rating Modal -->
+<div class="modal" id="ratingModal" tabindex="-1" role="dialog" aria-labelledby="ratingModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Edit Rating</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            
+            <form action="{{ url_for('admin.show_edit', id=result.id) }}" method="post">
+
+                <div class="row mb-2">
+                    <div class="col-4"><span class="pull-right font-weight-bold">Status:</span></div>
+                    <div>
+                        {% if result.user_viewed %}Viewed 
+                            {% if result.user_rating %}(Rating: {{result.user_rating}}){% endif %}
+                        {% else %}Not Viewed
+                        {% endif %}
+                    </div>
+                </div> 
+                <hr />
+            
+                <div class="row mb-2">    
+                    <div class="col-4"><span class="pull-right font-weight-bold">New rating:</span></div>
+                    <div>
+                        <div class="input-group input-group-sm">
+                            <input type="text" name="user_rating" class="form-control input-sm" pattern="[0-9]+\.[0-9]" placeholder="Rating /10">
+                            <div class="input-group-append">
+                              <button type="submit" class="btn btn-sm btn-primary" type="button">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="row mb-2">
+                    <div class="col-4"><span class="pull-right font-weight-bold">Change status:</span></div>
+                    <div>  
+                        <a href="{{ url_for('admin.quick_flag_viewed', id=result.id) }}" style="text-decoration: none;">
+                            <span class="btn btn-primary btn-sm mb-2">
+                                {% if result.user_viewed %}Mark as Not Viewed{% else %}Mark as Viewed{% endif %}
+                            </span>  
+                        </a>
+                    </div>
+                </div> 
+
+            </form>
+
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Collections Modal -->
+<div class="modal" id="collectionsModal" tabindex="-1" role="dialog" aria-labelledby="collectionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Edit Collections</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          ...
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Country Modal -->
+<div class="modal" id="countryModal" tabindex="-1" role="dialog" aria-labelledby="countryModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Edit Country</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+          <form action="{{ url_for('admin.show_edit', id=result.id) }}" method="post">
+
+              <div class="row mb-2">
+                  <div class="col-4"><span class="pull-right font-weight-bold">Status:</span></div>
+                  {% for e in result.countries %}
+                      <a href="{{ url_for('home.homepage', country=e.id) }}">{{ e.name }}</a> 
+                      <a href="{{ url_for('admin.quick_remove_country', id=result.id, cid=e.id) }}" onclick="return confirm('Are you sure?')" style="text-decoration: none;">
+                          <span class="fas fa-times m-1" style="font-size: 1em; color: red;"></span>
+                      </a>
+                      {{- "," if not loop.last }}
+                  {% endfor %}
+              </div> 
+              <hr />
+          
+              <div class="row mb-2">    
+                  <div class="col-4"><span class="pull-right font-weight-bold">Add country:</span></div>
+                  <div>
+                          <div><input type="text" name="country_add_name" class="input-sm" placeholder="Name"></div>
+                          <div><input type="text" name="country_add_id" class="input-sm" pattern="[0-9]+" placeholder="ID"></div>
+                          <div><input type="text" name="country_add_imdbid" class="input-sm" placeholder="IMDb (not working)"></div>
+                          <div><button type="submit" class="btn btn-sm btn-primary" type="button">Submit</button></div>
+                      
+                  </div>
+              </div>
+              
+
+          </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Genre Modal -->
+<div class="modal" id="genreModal" tabindex="-1" role="dialog" aria-labelledby="genreModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Edit Genre</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+          <form action="{{ url_for('admin.show_edit', id=result.id) }}" method="post">
+
+              <div class="row mb-2">
+                  <div class="col-4"><span class="pull-right font-weight-bold">Status:</span></div>
+                  {% for e in result.genres %}
+                      <a href="{{ url_for('home.homepage', genre=e.id) }}">{{ e.name }}</a> 
+                      <a href="{{ url_for('admin.quick_remove_genre', id=result.id, gid=e.id) }}" onclick="return confirm('Are you sure?')" style="text-decoration: none;">
+                          <span class="fas fa-times m-1" style="font-size: 1em; color: red;"></span>
+                      </a>
+                      {{- "," if not loop.last }}
+                  {% endfor %}
+              </div> 
+              <hr />
+          
+              <div class="row mb-2">    
+                  <div class="col-4"><span class="pull-right font-weight-bold">Add genre:</span></div>
+                  <div>
+                          <div class="mb-1"><input type="text" name="genre_add_name" class="input-sm" placeholder="Name"></div>
+                          <div class="mb-1"><input type="text" name="genre_add_id" class="input-sm" pattern="[0-9]+" placeholder="ID"></div>
+                          <div class="mb-1"><input type="text" name="genre_add_imdbid" class="input-sm" placeholder="IMDb (not working)"></div>
+                          <div><button type="submit" class="btn btn-sm btn-primary" type="button">Submit</button></div>
+                      
+                  </div>
+              </div>
+              
+
+          </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Cast Modal -->
+<div class="modal" id="castModal" tabindex="-1" role="dialog" aria-labelledby="castModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Edit Cast</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+          <form action="{{ url_for('admin.show_edit', id=result.id) }}" method="post">
+
+              <div class="row mb-2">
+                  <div class="col-4"><span class="pull-right font-weight-bold">Status:</span></div>
+                  {% for e in result.cast %}
+                      <a href="{{ url_for('home.homepage', people=e.id) }}">{{ e.name }}</a> 
+                      <a href="{{ url_for('admin.quick_remove_actor', id=result.id, pid=e.id) }}" onclick="return confirm('Are you sure?')" style="text-decoration: none;">
+                          <span class="fas fa-times m-1" style="font-size: 1em; color: red;"></span>
+                      </a>
+                      {{- "," if not loop.last }}
+                  {% endfor %}
+              </div> 
+              <hr />
+          
+              <div class="row mb-2">    
+                  <div class="col-4"><span class="pull-right font-weight-bold">Add actor:</span></div>
+                  <div>
+                          <div class="mb-1"><input type="text" name="actor_add_name" class="input-sm" placeholder="Name (not working)"></div>
+                          <div class="mb-1"><input type="text" name="actor_add_id" class="input-sm" pattern="[0-9]+" placeholder="ID"></div>
+                          <div class="mb-1"><input type="text" name="actor_add_imdbid" class="input-sm" placeholder="IMDb (not working)"></div>
+                          <div><button type="submit" class="btn btn-sm btn-primary" type="button">Submit</button></div>
+                      
+                  </div>
+              </div>
+              
+
+          </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Directors Modal -->
+<div class="modal" id="directorsModal" tabindex="-1" role="dialog" aria-labelledby="directorsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Edit Directors</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+  
+            <form action="{{ url_for('admin.show_edit', id=result.id) }}" method="post">
+
+                <div class="row mb-2">
+                    <div class="col-4"><span class="pull-right font-weight-bold">Status:</span></div>
+                    {% for dir in result.directors %}
+                        <a href="{{ url_for('home.homepage', people=dir.id) }}">{{ dir.name }}</a> 
+                        <a href="{{ url_for('admin.quick_remove_director', id=result.id, pid=dir.id) }}" onclick="return confirm('Are you sure?')" style="text-decoration: none;">
+                            <span class="fas fa-times m-1" style="font-size: 1em; color: red;"></span>
+                        </a>
+                        {{- "," if not loop.last }}
+                    {% endfor %}
+                </div> 
+                <hr />
+            
+                <div class="row mb-2">    
+                    <div class="col-4"><span class="pull-right font-weight-bold">Add director:</span></div>
+                    <div>
+                            <div class="mb-1"><input type="text" name="director_add_name" class="input-sm" placeholder="Name (not working)"></div>
+                            <div class="mb-1"><input type="text" name="director_add_id" class="input-sm" pattern="[0-9]+" placeholder="ID"></div>
+                            <div class="mb-1"><input type="text" name="director_add_imdbid" class="input-sm" placeholder="IMDb"></div>
+                            <div><button type="submit" class="btn btn-sm btn-primary" type="button">Submit</button></div>
+                        
+                    </div>
+                </div>
+                
+
+            </form>
+
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- ----------  -->
+<!-- ----------  -->

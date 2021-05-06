@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<hr />
+<div class="container">
+<div class="row">
+
+    <div class="col-lg-3">
+        <!-- GENERAL STATISTICS -->
+        <table>
+            <tr>
+                <th class="pr-2" scope="row">Total shows:</th>
+                <td class="text-right" >{{ get_query_count({'filter':'shows_all'}) }}</td>
+            </tr>
+            <tr>
+                <th class="pr-2" scope="row">Total releases:</th>
+                <td class="text-right" >{{ get_query_count({'filter':'releases_all'}) }}</td>
+            </tr>
+            
+        </table>
+    </div>
+
+    <div class="col-lg-3">
+        <!-- PEOPLE STATISTICS -->
+        <table>
+            <tr>
+                <th class="pr-2" scope="row">People:</th>
+                <td class="text-right" >{{ get_query_count({'filter':'people_all'}) }}</td>
+            </tr>
+            <tr>
+                <th class="pr-2" scope="row">(Directors):</th>
+                <td class="text-right" >{{ get_query_count({'filter':'directors_all'}) }}</td>
+            </tr>
+            <tr>
+                <th class="pr-2" scope="row">(Actors):</th>
+                <td class="text-right" >{{ get_query_count({'filter':'actors_all'}) }}</td>
+            </tr>
+            <tr>
+                <th class="p-2" scope="row"></th>
+                <td></td>
+            </tr>
+            
+            {% for d in get_query_object({'filter':'storage_all'}) %}
+            <tr>
+                <th class="pr-2" scope="row">
+                    <a href="{{ modify_query(storage=d.name) }}">disk {{ '%02d' % d.name|int }}</a>:
+                </th>
+                <td class="text-right" >{{ d.releases|count }}</td>
+            </tr>
+            {% endfor %} 
+
+        </table>
+    </div>
+
+    <div class="col-lg-3">
+        <span class="pr-2"><a href="{{ modify_query(filter='user_viewed') }}">Viewed shows</a> ({{ get_query_count({'filter':'user_viewed'}) }})</span><br />
+        <span class="pr-2"><a href="{{ modify_query(filter='user_rated') }}">Rated shows</a> ({{ get_query_count({'filter':'user_rated'}) }})</span><br />
+        <span class="pr-2"><a href="{{ modify_query(filter='user_not_viewed') }}">Not viewed shows</a> ({{ get_query_count({'filter':'user_not_viewed'}) }})</span><br />
+        <span class="pr-2"> </span><br />
+
+        <span class="pr-2">
+            Sources: 
+            <a href="{{ modify_query(filter='source_bluray') }}">BluRay</a> / 
+            <a href="{{ modify_query(filter='source_dvd') }}">DVD</a> / 
+            <a href="{{ modify_query(filter='source_web') }}">Web</a> / 
+            <a href="{{ modify_query(filter='source_tv') }}">TV</a> 
+        </span><br />
+
+        <span class="pr-2">
+            Definition: 
+            <a href="{{ modify_query(filter='SD') }}">SD</a> ({{ get_query_count({'filter':'SD'}) }}) / 
+            <a href="{{ modify_query(filter='HD') }}">HD</a> ({{ get_query_count({'filter':'HD'}) }})
+        </span><br />
+
+    </div>
+
+
+    <div class="col-lg-3">
+        <span class="pr-2"><a href="{{ modify_query(filter='shows_not_validated') }}">Not validated</a> ({{ get_query_count({'filter':'shows_not_validated'}) }})</span><br />
+        <span class="pr-2"><a href="{{ modify_query(filter='not_x264') }}">No x264</a> ({{ get_query_count({'filter':'not_x264'}) }})</span><br />
+        <span class="pr-2"><a href="{{ modify_query(filter='no_source') }}">No source</a> ({{ get_query_count({'filter':'no_source'}) }})</span><br />
+        <span class="pr-2"><a href="{{ modify_query(filter='shows_no_releases') }}">Shows without Releases</a> ({{ get_query_count({'filter':'shows_no_releases'}) }})</span><br />
+        <span class="pr-2"><a href="{{ modify_query(filter='shows_no_imdb') }}">Shows without IMDb</a> ({{ get_query_count({'filter':'shows_no_imdb'}) }})</span><br />
+        <span class="pr-2"><a href="{{ modify_query(filter='shows_dupe_releases') }}">Shows with multiple Releases</a> ({{ get_query_count({'filter':'shows_dupe_releases'}) }})</span><br />
+        <!-- TODO  --><span class="pr-2"><a href="{{ modify_query(filter='shows_duplicate_imdb') }}">Shows duplicate imdb</a> ({{ get_query_count({'filter':'shows_duplicate_imdb'}) }})</span><br />
+        <!-- TODO  --><span class="pr-2"><a href="{{ modify_query(filter='releases_deleted') }}">Deleted releases</a> ({{ get_query_count({'filter':'releases_deleted'}) }})</span><br />
+        <span class="pr-2"> </span><br />
+    </div>
+
+ </div>
+</div>
+
+<hr />
+<div class="container">
+
+
+ <div class="row">
+
+    <div class="col-lg-3">
+        <strong><u>Top Countries:</u></strong><br />
+        {% for e in get_query_object({'filter':'top_countries'})[:25] %}
+            <a href="{{ url_for('home.homepage', country=e[0].id) }}">{{ e[0].name }}</a> ({{ e[1] }}) <br />
+        {% endfor %}
+
+        <div class="show-more-wrapper">
+            <a href="#" onclick="return false;" class="show-more">(Show More)</a>
+            <div class="additional-content">
+                {% for e in get_query_object({'filter':'top_countries'})[25:100] %} 
+                    <a href="{{ url_for('home.homepage', country=e[0].id) }}">{{ e[0].name }}</a> ({{ e[1] }}) <br />
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3">
+        <strong><u>Top Genres:</u></strong><br />
+        {% for e in get_query_object({'filter':'top_genres'})[:25] %}
+            <a href="{{ url_for('home.homepage', genre=e[0].id) }}">{{ e[0].name }}</a> ({{ e[1] }}) <br />
+        {% endfor %}        
+        
+        <div class="show-more-wrapper">
+            <a href="#" onclick="return false;" class="show-more">(Show More)</a>
+            <div class="additional-content">
+                {% for e in get_query_object({'filter':'top_genres'})[25:100] %} 
+                    <a href="{{ url_for('home.homepage', genre=e[0].id) }}">{{ e[0].name }}</a> ({{ e[1] }}) <br />
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3">
+        <strong><u>Top Directors:</u></strong><br />
+        {% for e in get_query_object({'filter':'top_directors'})[:25] %}
+            <a href="{{ url_for('home.homepage', people=e[0].id) }}">{{ e[0].name }}</a> ({{ e[1] }}) <br />
+        {% endfor %}   
+        
+        <div class="show-more-wrapper">
+            <a href="#" onclick="return false;" class="show-more">(Show More)</a>
+            <div class="additional-content">
+                {% for e in get_query_object({'filter':'top_directors'})[25:100] %} 
+                    <a href="{{ url_for('home.homepage', people=e[0].id) }}">{{ e[0].name }}</a> ({{ e[1] }}) <br />
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3">
+        <strong><u>Top Actors:</u></strong><br />
+        {% for e in get_query_object({'filter':'top_actors'})[:25] %}
+            <a href="{{ url_for('home.homepage', people=e[0].id) }}">{{ e[0].name }}</a> ({{ e[1] }}) <br />
+        {% endfor %}
+        
+        <div class="show-more-wrapper">
+            <a href="#" onclick="return false;" class="show-more">(Show More)</a>
+            <div class="additional-content">
+                {% for e in get_query_object({'filter':'top_actors'})[25:100] %} 
+                    <a href="{{ url_for('home.homepage', people=e[0].id) }}">{{ e[0].name }}</a> ({{ e[1] }}) <br />
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+
+ <hr /><br />
+
+
+<script src="{{ url_for('static', filename='js/toggle_text.js') }}"></script>
+<script src="{{ url_for('static', filename='js/toggle_text2.js') }}"></script>
+
+{% endblock %}

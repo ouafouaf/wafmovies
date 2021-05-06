@@ -1,0 +1,60 @@
+<div class="modal" id="releaseModal{{r.id}}" tabindex="-1" role="dialog" aria-labelledby="releaseModalLabel{{r.id}}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Edit Release</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body">
+
+            <form action="{{ url_for('admin.show_edit', id=result.id) }}" method="post">
+
+                <div class="row mb-2">
+                    <div class="col-4"><span class="pull-right font-weight-bold">Status:</span></div>
+                    <div>
+                        {% if r.source %}
+                            <span class="fas fa-check" style="font-size: 0.9em; color: limegreen;"></span>  
+                            {{ r.source }} 
+                        {% else %}
+                            {% if r.source_auto != None %} {{ r.source_auto }} /{% endif %}
+                        {% endif %}
+
+                        {% if r.delete %}[Deleted]{% endif %}
+                    </div>
+                </div> 
+                <hr />
+            
+                <div class="row mb-2">    
+                    <div class="col-4"><span class="pull-right font-weight-bold">Merge with:</span></div>
+                    <div>
+                        <div class="input-group input-group-sm">
+                            <input type="text" name="merge_to_show" class="form-control input-sm" placeholder="Show ID">
+                            <input type="hidden" value="{{ r.id }}" name="hidden_release_id" />
+                            <div class="input-group-append">
+                              <button type="submit" class="btn btn-sm btn-primary" type="button">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-4"><span class="pull-right font-weight-bold">Change status:</span></div>
+                    <div>  
+                        <a href="{{ url_for('admin.release_soft_delete', id=r.id) }}" style="text-decoration: none;">
+                            <span class="btn btn-primary btn-sm mb-2">
+                                {% if r.delete %}Cancel Soft Delete{% else %}Soft Delete{% endif %}
+                            </span>  
+                        </a>
+                        <a href="{{ url_for('admin.release_delete', id=r.id) }}" onclick="return confirm('Are you sure?')" style="text-decoration: none;">
+                            <span class="btn btn-danger btn-sm mb-2">Delete</span>  
+                        </a>
+                    </div>
+                </div> 
+                    
+            </form>
+        </div>
+    </div>
+    </div>
+</div>
